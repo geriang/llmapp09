@@ -1,0 +1,25 @@
+# Local environment files; keep safe templates trackable.
+**/.env
+**/.env.*
+!**/.env.example
+
+# Python artifacts and environments.
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+venv/
+.venv/
+
+# Node dependencies.
+node_modules/
+
+# DeepEval local runs.
+deepeval-tests/.deepeval/
+
+# macOS metadata.
+.DS_Store
