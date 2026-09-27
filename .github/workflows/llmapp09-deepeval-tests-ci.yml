@@ -4,14 +4,14 @@ on:
   push:
     branches: [main, master]
     paths:
-      - 'llmapp09/deepeval-tests/**'
-      - 'llmapp09/llm-multiroute/**'
+      - 'deepeval-tests/**'
+      - 'llm-multiroute/**'
       - '.github/workflows/llmapp09-deepeval-tests-ci.yml'
   pull_request:
     branches: [main, master]
     paths:
-      - 'llmapp09/deepeval-tests/**'
-      - 'llmapp09/llm-multiroute/**'
+      - 'deepeval-tests/**'
+      - 'llm-multiroute/**'
       - '.github/workflows/llmapp09-deepeval-tests-ci.yml'
   workflow_dispatch:
 
@@ -32,15 +32,15 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
-          cache-dependency-path: llmapp09/deepeval-tests/requirements.txt
+          cache-dependency-path: deepeval-tests/requirements.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r llmapp09/deepeval-tests/requirements.txt
+          pip install -r deepeval-tests/requirements.txt
 
       - name: Build and start backend
-        run: docker compose -f llmapp09/docker-compose.yml up -d llm-multiroute
+        run: docker compose up -d llm-multiroute
 
       - name: Wait for backend to be ready
         run: |
@@ -54,25 +54,25 @@ jobs:
             sleep 5
           done
           echo "Backend failed to start."
-          docker compose -f llmapp09/docker-compose.yml logs llm-multiroute
+          docker compose logs llm-multiroute
           exit 1
 
       - name: Run DeepEval classify tests
-        working-directory: llmapp09/deepeval-tests
+        working-directory: deepeval-tests
         run: deepeval test run test_classify.py -v
 
       - name: Run DeepEval sentiment tests
-        working-directory: llmapp09/deepeval-tests
+        working-directory: deepeval-tests
         run: deepeval test run test_sentiment.py -v
 
       - name: Run DeepEval summarize tests
-        working-directory: llmapp09/deepeval-tests
+        working-directory: deepeval-tests
         run: deepeval test run test_summarize.py -v
 
       - name: Run DeepEval intent tests
-        working-directory: llmapp09/deepeval-tests
+        working-directory: deepeval-tests
         run: deepeval test run test_intent.py -v
 
       - name: Tear down backend
         if: always()
-        run: docker compose -f llmapp09/docker-compose.yml down
+        run: docker compose down

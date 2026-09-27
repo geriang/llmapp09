@@ -4,14 +4,14 @@ on:
   push:
     branches: [main, master]
     paths:
-      - 'llmapp09/promptfoo-tests/**'
-      - 'llmapp09/llm-multiroute/**'
+      - 'promptfoo-tests/**'
+      - 'llm-multiroute/**'
       - '.github/workflows/llmapp09-promptfoo-tests-ci.yml'
   pull_request:
     branches: [main, master]
     paths:
-      - 'llmapp09/promptfoo-tests/**'
-      - 'llmapp09/llm-multiroute/**'
+      - 'promptfoo-tests/**'
+      - 'llm-multiroute/**'
       - '.github/workflows/llmapp09-promptfoo-tests-ci.yml'
   workflow_dispatch:
 
@@ -32,7 +32,7 @@ jobs:
           node-version: '22'
 
       - name: Build and start backend
-        run: docker compose -f llmapp09/docker-compose.yml up -d llm-multiroute
+        run: docker compose up -d llm-multiroute
 
       - name: Wait for backend to be ready
         run: |
@@ -46,25 +46,25 @@ jobs:
             sleep 5
           done
           echo "Backend failed to start."
-          docker compose -f llmapp09/docker-compose.yml logs llm-multiroute
+          docker compose logs llm-multiroute
           exit 1
 
       - name: Run PromptFoo classify evaluation
-        working-directory: llmapp09/promptfoo-tests
+        working-directory: promptfoo-tests
         run: npx promptfoo@latest eval -c classify.yaml
 
       - name: Run PromptFoo sentiment evaluation
-        working-directory: llmapp09/promptfoo-tests
+        working-directory: promptfoo-tests
         run: npx promptfoo@latest eval -c sentiment.yaml
 
       - name: Run PromptFoo summarize evaluation
-        working-directory: llmapp09/promptfoo-tests
+        working-directory: promptfoo-tests
         run: npx promptfoo@latest eval -c summarize.yaml
 
       - name: Run PromptFoo intent evaluation
-        working-directory: llmapp09/promptfoo-tests
+        working-directory: promptfoo-tests
         run: npx promptfoo@latest eval -c intent.yaml
 
       - name: Tear down backend
         if: always()
-        run: docker compose -f llmapp09/docker-compose.yml down
+        run: docker compose down
