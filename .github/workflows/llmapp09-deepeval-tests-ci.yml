@@ -1,4 +1,4 @@
-name: DeepEval Tests
+name: LLM App09 DeepEval Tests
 
 on:
   push:
@@ -6,18 +6,18 @@ on:
     paths:
       - 'llmapp09/deepeval-tests/**'
       - 'llmapp09/llm-multiroute/**'
-      - 'llmapp09/.github/workflows/deepeval-tests-ci.yml'
+      - '.github/workflows/llmapp09-deepeval-tests-ci.yml'
   pull_request:
     branches: [main, master]
     paths:
       - 'llmapp09/deepeval-tests/**'
       - 'llmapp09/llm-multiroute/**'
-      - 'llmapp09/.github/workflows/deepeval-tests-ci.yml'
+      - '.github/workflows/llmapp09-deepeval-tests-ci.yml'
   workflow_dispatch:
 
 env:
-  OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }} # required in github secrets
-  OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }} # required in github secrets
+  OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+  OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
   OLLAMA_EVAL_MODEL: gemma4:31b
 
 jobs:
@@ -54,7 +54,7 @@ jobs:
             sleep 5
           done
           echo "Backend failed to start."
-          docker compose logs llm-multiroute
+          docker compose -f llmapp09/docker-compose.yml logs llm-multiroute
           exit 1
 
       - name: Run DeepEval classify tests

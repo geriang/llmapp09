@@ -1,4 +1,4 @@
-name: PromptFoo Tests
+name: LLM App09 PromptFoo Tests
 
 on:
   push:
@@ -6,18 +6,18 @@ on:
     paths:
       - 'llmapp09/promptfoo-tests/**'
       - 'llmapp09/llm-multiroute/**'
-      - 'llmapp09/.github/workflows/promptfoo-tests-ci.yml'
+      - '.github/workflows/llmapp09-promptfoo-tests-ci.yml'
   pull_request:
     branches: [main, master]
     paths:
       - 'llmapp09/promptfoo-tests/**'
       - 'llmapp09/llm-multiroute/**'
-      - 'llmapp09/.github/workflows/promptfoo-tests-ci.yml'
+      - '.github/workflows/llmapp09-promptfoo-tests-ci.yml'
   workflow_dispatch:
 
 env:
-  OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }} # required in github secrets
-  OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }} # required in github secrets
+  OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+  OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
 
 jobs:
   promptfoo-eval:
@@ -32,8 +32,7 @@ jobs:
           node-version: '22'
 
       - name: Build and start backend
-        run: |
-          docker compose -f llmapp09/docker-compose.yml up -d llm-multiroute
+        run: docker compose -f llmapp09/docker-compose.yml up -d llm-multiroute
 
       - name: Wait for backend to be ready
         run: |
@@ -47,7 +46,7 @@ jobs:
             sleep 5
           done
           echo "Backend failed to start."
-          docker compose logs llm-multiroute
+          docker compose -f llmapp09/docker-compose.yml logs llm-multiroute
           exit 1
 
       - name: Run PromptFoo classify evaluation
