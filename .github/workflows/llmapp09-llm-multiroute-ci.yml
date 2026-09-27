@@ -92,9 +92,9 @@ jobs:
         with:
           context: llm-multiroute
           load: true
+          pull: true
+          no-cache: true
           tags: ghcr.io/${{ github.repository_owner }}/llmapp09-llm-multiroute:scan
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -120,8 +120,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: llm-multiroute
+          pull: true
+          no-cache: true
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
