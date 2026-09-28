@@ -26,35 +26,27 @@
   The frontend will be available at http://localhost:5000 and the backend  API at http://localhost:8080.  
 
 
-  # Added to both image publishing workflows
-  - GHCR login — Authenticates to ghcr.io with the built-in GITHUB_TOKEN.
-  Image-publishing jobs request packages: write permission and skip publishing on pull requests.
+  #  Added to both workflows - llm-multiroute-llm-frontend-python                                                    
+  - Docker Hub Login — Authenticates using darryl1975 and the          
+  DOCKERHUB_TOKEN secret. Skipped on pull requests to avoid exposing credentials.
   - Metadata extraction — Uses docker/metadata-action@v5 to generate smart tags:
     - sha-<commit> on every build
     - Branch name tag (e.g., main)
     - PR number tag on pull requests
     - Semver tag if you use git tags (e.g., v1.0.0)
     - latest only on the default branch
-  - Conditional push — Builds on all triggers but only pushes to GHCR on
-   push events (not on PRs, which get build-only validation)
-  Image names on GHCR
+  - Conditional push — Builds on all triggers but only pushes to Docker
+   Hub on push events (not on PRs, which get build-only validation)
+  Image names on Docker Hub
   ┌─────────────────────┬────────────────────────────────┐             
   │      Workflow       │             Image              │             
   ├─────────────────────┼────────────────────────────────┤             
-  │ llm-multiroute      │ ghcr.io/<owner>/llmapp09-llm-multiroute      │
+  │ llm-multiroute      │ darryl1975/llm-multiroute      │             
   ├─────────────────────┼────────────────────────────────┤             
-  │ llm-frontend-python │ ghcr.io/<owner>/llmapp09-llm-frontend-python │
+  │ llm-frontend-python │ darryl1975/llm-frontend-python │             
   └─────────────────────┴────────────────────────────────┘             
-  No registry secret is required. GitHub Actions uses GITHUB_TOKEN with
-  packages: write permission to publish packages under the repository owner.
-
-  Manual builds
-  Log in to GHCR before running either build.sh script. Use a GitHub token
-  with write:packages permission:
-
-  export GHCR_OWNER="your-github-owner"
-  export GHCR_TOKEN="your-github-token"
-  echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_OWNER" --password-stdin
-
-  Then run build.sh from the corresponding llm-multiroute or
-  llm-frontend-python directory. The scripts publish the :latest tag.
+  Required secret
+  Add this in your repo settings (Settings > Secrets and variables > Actions):
+  Secret: DOCKERHUB_TOKEN
+  Purpose: Docker Hub access token for darryl1975 (generate at https://hub.docker.com/settings/security)
+  Use a Docker Hub access token rather than your password — you can create one under Account Settings > Security > Access Tokens.

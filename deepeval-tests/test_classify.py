@@ -13,7 +13,12 @@ from deepeval.metrics import GEval
 from deepeval.dataset import EvaluationDataset
 
 from api_client import classify_text
-from conftest import answer_relevancy_metric, json_schema_metric, ollama_evaluator_model
+from conftest import (
+    answer_relevancy_metric,
+    judge_model,
+    json_schema_metric,
+    output_correctness_metric,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -123,18 +128,13 @@ classify_correctness_metric = GEval(
         "considered acceptable. "
         "The confidence score should be between 0 and 1."
     ),
-    evaluation_steps=[
-        "Identify the dominant topic in the input text.",
-        "Check whether the labels and primary category describe that topic accurately.",
-        "Check that the confidence score is between 0 and 1.",
-    ],
     evaluation_params=[
         LLMTestCaseParams.INPUT,
         LLMTestCaseParams.ACTUAL_OUTPUT,
         LLMTestCaseParams.EXPECTED_OUTPUT,
     ],
-    model=ollama_evaluator_model(),
     threshold=0.5,
+    model=judge_model,
 )
 
 classify_relevancy_metric = answer_relevancy_metric()

@@ -1,4 +1,4 @@
-name: LLM App09 DeepEval Tests
+name: DeepEval Tests
 
 on:
   push:
@@ -6,19 +6,19 @@ on:
     paths:
       - 'deepeval-tests/**'
       - 'llm-multiroute/**'
-      - '.github/workflows/llmapp09-deepeval-tests-ci.yml'
+      - '.github/workflows/deepeval-tests-ci.yml'
   pull_request:
     branches: [main, master]
     paths:
       - 'deepeval-tests/**'
       - 'llm-multiroute/**'
-      - '.github/workflows/llmapp09-deepeval-tests-ci.yml'
+      - '.github/workflows/deepeval-tests-ci.yml'
   workflow_dispatch:
 
 env:
   OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
   OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
-  OLLAMA_EVAL_MODEL: gemma4:31b
+  OLLAMA_EVAL_MODEL: ${{ vars.OLLAMA_EVAL_MODEL || 'gemma4:31b' }}
 
 jobs:
   deepeval:

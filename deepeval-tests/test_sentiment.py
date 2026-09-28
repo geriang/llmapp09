@@ -13,7 +13,12 @@ from deepeval.metrics import GEval
 from deepeval.dataset import EvaluationDataset
 
 from api_client import analyze_sentiment
-from conftest import answer_relevancy_metric, json_schema_metric, ollama_evaluator_model
+from conftest import (
+    answer_relevancy_metric,
+    judge_model,
+    json_schema_metric,
+    output_correctness_metric,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -129,18 +134,13 @@ sentiment_correctness_metric = GEval(
         "have positive scores, negative text should have negative scores), "
         "(3) the detected emotions are plausible for the given text."
     ),
-    evaluation_steps=[
-        "Determine the dominant sentiment in the input.",
-        "Check that the output sentiment and score match the input tone.",
-        "Check that the listed emotions are plausible for the input.",
-    ],
     evaluation_params=[
         LLMTestCaseParams.INPUT,
         LLMTestCaseParams.ACTUAL_OUTPUT,
         LLMTestCaseParams.EXPECTED_OUTPUT,
     ],
-    model=ollama_evaluator_model(),
     threshold=0.7,
+    model=judge_model,
 )
 
 sentiment_emotion_metric = GEval(
@@ -151,16 +151,12 @@ sentiment_emotion_metric = GEval(
         "should reflect the emotional tone conveyed in the text. Synonyms "
         "and closely related emotions should be considered acceptable."
     ),
-    evaluation_steps=[
-        "Identify the emotions conveyed by the input text.",
-        "Check whether the detected emotions reasonably reflect that tone.",
-    ],
     evaluation_params=[
         LLMTestCaseParams.INPUT,
         LLMTestCaseParams.ACTUAL_OUTPUT,
     ],
-    model=ollama_evaluator_model(),
     threshold=0.6,
+    model=judge_model,
 )
 
 sentiment_relevancy_metric = answer_relevancy_metric()

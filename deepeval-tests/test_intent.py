@@ -13,7 +13,12 @@ from deepeval.metrics import GEval
 from deepeval.dataset import EvaluationDataset
 
 from api_client import detect_intent
-from conftest import answer_relevancy_metric, json_schema_metric, ollama_evaluator_model
+from conftest import (
+    answer_relevancy_metric,
+    judge_model,
+    json_schema_metric,
+    output_correctness_metric,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -132,17 +137,13 @@ intent_category_metric = GEval(
         "and factual declarations as 'statement'. Compare with the expected "
         "output to verify the category is correct."
     ),
-    evaluation_steps=[
-        "Identify the intent category expressed by the input text.",
-        "Compare the actual category with the expected category.",
-    ],
     evaluation_params=[
         LLMTestCaseParams.INPUT,
         LLMTestCaseParams.ACTUAL_OUTPUT,
         LLMTestCaseParams.EXPECTED_OUTPUT,
     ],
-    model=ollama_evaluator_model(),
     threshold=0.5,
+    model=judge_model,
 )
 
 intent_primary_metric = GEval(
@@ -153,17 +154,13 @@ intent_primary_metric = GEval(
         "should capture what the user is trying to accomplish. Synonyms and "
         "semantically equivalent descriptions should be considered correct."
     ),
-    evaluation_steps=[
-        "Identify the main purpose of the input text.",
-        "Compare the actual primary intent with the expected intent, allowing equivalent wording.",
-    ],
     evaluation_params=[
         LLMTestCaseParams.INPUT,
         LLMTestCaseParams.ACTUAL_OUTPUT,
         LLMTestCaseParams.EXPECTED_OUTPUT,
     ],
-    model=ollama_evaluator_model(),
     threshold=0.5,
+    model=judge_model,
 )
 
 intent_relevancy_metric = answer_relevancy_metric()

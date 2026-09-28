@@ -13,7 +13,12 @@ from deepeval.metrics import GEval
 from deepeval.dataset import EvaluationDataset
 
 from api_client import summarize_text
-from conftest import answer_relevancy_metric, json_schema_metric, ollama_evaluator_model
+from conftest import (
+    answer_relevancy_metric,
+    judge_model,
+    json_schema_metric,
+    output_correctness_metric,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -169,17 +174,13 @@ summarize_correctness_metric = GEval(
         "topics. The key points should reflect the most important aspects of "
         "the input text."
     ),
-    evaluation_steps=[
-        "Identify the main ideas and key facts in the input text.",
-        "Check that the summary and key points capture those ideas without adding unsupported claims.",
-    ],
     evaluation_params=[
         LLMTestCaseParams.INPUT,
         LLMTestCaseParams.ACTUAL_OUTPUT,
         LLMTestCaseParams.EXPECTED_OUTPUT,
     ],
-    model=ollama_evaluator_model(),
     threshold=0.7,
+    model=judge_model,
 )
 
 summarize_conciseness_metric = GEval(
@@ -190,16 +191,12 @@ summarize_conciseness_metric = GEval(
         "input text while retaining all essential information. The wordCount "
         "field should be reasonable relative to the input length."
     ),
-    evaluation_steps=[
-        "Compare the summary length with the input length.",
-        "Check that it is concise while retaining essential information.",
-    ],
     evaluation_params=[
         LLMTestCaseParams.INPUT,
         LLMTestCaseParams.ACTUAL_OUTPUT,
     ],
-    model=ollama_evaluator_model(),
     threshold=0.7,
+    model=judge_model,
 )
 
 summarize_faithfulness_metric = GEval(
@@ -210,16 +207,12 @@ summarize_faithfulness_metric = GEval(
         "facts, statistics, or claims that are not present in the input. "
         "Penalize any fabricated information heavily."
     ),
-    evaluation_steps=[
-        "Check each factual claim in the summary against the input text.",
-        "Penalize claims that are not supported by the input.",
-    ],
     evaluation_params=[
         LLMTestCaseParams.INPUT,
         LLMTestCaseParams.ACTUAL_OUTPUT,
     ],
-    model=ollama_evaluator_model(),
     threshold=0.8,
+    model=judge_model,
 )
 
 summarize_relevancy_metric = answer_relevancy_metric()

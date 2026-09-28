@@ -40,7 +40,7 @@
 │ 2. app/config.py — Per-Route Model Configuration                         │
 │                                                                          │
 │ Environment variables:                                                   │
-│ OLLAMA_BASE_URL       = https://ollama.com  (Ollama cloud)                │
+│ OLLAMA_BASE_URL       = https://api.ollama.com  (Ollama cloud)           │
 │ OLLAMA_API_KEY        = (from env)                                       │
 │ OLLAMA_TEMPERATURE    = 0.7                                              │
 │                                                                          │

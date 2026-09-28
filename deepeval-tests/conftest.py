@@ -3,27 +3,76 @@ Shared fixtures and configuration for deepeval LLM evaluation tests.
 """
 
 import os
+import re
+from typing import Optional
 
+import ollama
 import pytest
 from deepeval.metrics import GEval
-from deepeval.models import OllamaModel
+from deepeval.models import DeepEvalBaseLLM
 from deepeval.test_case import LLMTestCaseParams
+
+
+class OllamaJudgeModel(DeepEvalBaseLLM):
+    """DeepEval Ollama judge that accepts fenced JSON responses."""
+
+    def __init__(self, model: str, base_url: str, api_key: str):
+        self.base_url = base_url.rstrip("/")
+        self.api_key = api_key
+        super().__init__(model)
+
+    def load_model(self):
+        headers = {"Authorization": f"Bearer {self.api_key}"} if self.api_key else {}
+        return ollama.Client(host=self.base_url, headers=headers)
+
+    @staticmethod
+    def _clean_response(content: str) -> str:
+        return re.sub(
+            r"^```(?:json)?\s*|\s*```$", "", content.strip(), flags=re.IGNORECASE
+        )
+
+    def generate(self, prompt: str, schema: Optional[type] = None):
+        response = self.model.chat(
+            model=self.name,
+            messages=[{"role": "user", "content": prompt}],
+            format=schema.model_json_schema() if schema else None,
+            options={"temperature": 0},
+        )
+        content = self._clean_response(response.message.content)
+        return (schema.model_validate_json(content) if schema else content), 0
+
+    async def a_generate(self, prompt: str, schema: Optional[type] = None):
+        client = ollama.AsyncClient(
+            host=self.base_url, headers=self.model._client.headers
+        )
+        response = await client.chat(
+            model=self.name,
+            messages=[{"role": "user", "content": prompt}],
+            format=schema.model_json_schema() if schema else None,
+            options={"temperature": 0},
+        )
+        content = self._clean_response(response.message.content)
+        return (schema.model_validate_json(content) if schema else content), 0
+
+    def get_model_name(self):
+        return f"{self.name} (Ollama)"
+
+
+def ollama_judge() -> OllamaJudgeModel:
+    api_key = os.getenv("OLLAMA_API_KEY", "")
+    return OllamaJudgeModel(
+        model=os.getenv("OLLAMA_EVAL_MODEL", "gemma4:31b"),
+        base_url=os.getenv("OLLAMA_BASE_URL", "https://ollama.com"),
+        api_key=api_key,
+    )
+
+
+judge_model = ollama_judge()
 
 
 # ---------------------------------------------------------------------------
 # Reusable GEval metric factories
 # ---------------------------------------------------------------------------
-
-
-def ollama_evaluator_model():
-    api_key = os.getenv("OLLAMA_API_KEY", "")
-    headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
-    return OllamaModel(
-        model=os.getenv("OLLAMA_EVAL_MODEL", os.getenv("OLLAMA_MODEL", "gemma4:31b")),
-        base_url=os.getenv("OLLAMA_BASE_URL", "https://ollama.com"),
-        temperature=0,
-        headers=headers,
-    )
 
 
 def json_schema_metric(schema_description: str):
@@ -35,15 +84,11 @@ def json_schema_metric(schema_description: str):
             "the required schema. Only check structure, key names, and data "
             "types — do NOT penalize for specific values. " + schema_description
         ),
-        evaluation_steps=[
-            "Check that the output is valid JSON.",
-            "Check that the required keys and value types match the schema.",
-        ],
         evaluation_params=[
             LLMTestCaseParams.ACTUAL_OUTPUT,
         ],
-        model=ollama_evaluator_model(),
         threshold=0.5,
+        model=judge_model,
     )
 
 
@@ -56,16 +101,12 @@ def output_correctness_metric():
             "reasonable given the input text. The analysis should make sense "
             "for the provided input."
         ),
-        evaluation_steps=[
-            "Compare the output with the input text.",
-            "Judge whether the output is logically correct and reasonable.",
-        ],
         evaluation_params=[
             LLMTestCaseParams.INPUT,
             LLMTestCaseParams.ACTUAL_OUTPUT,
         ],
-        model=ollama_evaluator_model(),
         threshold=0.5,
+        model=judge_model,
     )
 
 
@@ -83,14 +124,10 @@ def answer_relevancy_metric():
             "Structured metadata (labels, categories, confidence scores) that "
             "accurately describes the input text should be considered relevant."
         ),
-        evaluation_steps=[
-            "Identify the main topic of the input text.",
-            "Check whether the output directly relates to that topic.",
-        ],
         evaluation_params=[
             LLMTestCaseParams.INPUT,
             LLMTestCaseParams.ACTUAL_OUTPUT,
         ],
-        model=ollama_evaluator_model(),
         threshold=0.5,
+        model=judge_model,
     )
