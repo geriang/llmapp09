@@ -1,12 +1,19 @@
+# ============================================================
+# Trivy ignore list - llmapp09
+# Every entry expires on 2026-12-31 so it gets re-reviewed.
+# ============================================================
+
 # --- glibc ---
 # Integer overflow in memalign leads to heap corruption.
 # No fix available upstream (status: affected) - suppress until Debian publishes a patch.
 CVE-2026-0861 exp:2026-12-31
 
-# --- util-linux (bsdutils, libblkid1, liblastlog2-2, libmount1, libsmartcols1,
-#     libuuid1, login, mount, util-linux) ---
-# No fix in Debian 13 yet (status: affected). Mount helpers / nsenter are not used
-# by the app; container runs as non-root, non-privileged.
+# --- util-linux (Debian 12 + 13) ---
+# Affects bsdutils, libblkid1, liblastlog2-2, libmount1, libsmartcols1, libuuid1,
+# login, mount, util-linux, util-linux-extra.
+# No fix yet. Mount helpers / nsenter are not used by the app;
+# container runs as non-root, non-privileged.
+CVE-2026-53613 exp:2026-12-31
 CVE-2026-76642 exp:2026-12-31
 CVE-2026-78408 exp:2026-12-31
 CVE-2026-78409 exp:2026-12-31
@@ -15,6 +22,22 @@ CVE-2026-78410 exp:2026-12-31
 # --- systemd (libsystemd0, libudev1) ---
 # systemd-homed LPE. No fix yet; systemd-homed is not running in the container.
 CVE-2026-16742 exp:2026-12-31
+
+# --- sqlite (libsqlite3-0, llm-multiroute) ---
+# No fix yet (fix_deferred).
+# TODO: confirm the app does not pass untrusted data to sqlite / FTS5.
+CVE-2025-7458 exp:2026-12-31
+CVE-2026-11822 exp:2026-12-31
+CVE-2026-11824 exp:2026-12-31
+
+# --- openssl (libssl3, openssl, llm-multiroute) ---
+# DTLS handshake information disclosure. No fix yet; the app does not use DTLS.
+CVE-2026-84782 exp:2026-12-31
+
+# --- zlib (zlib1g, llm-multiroute) ---
+# Debian status: will_not_fix. Affects the minizip function zipOpenNewFileInZip4_6,
+# which the app does not use.
+CVE-2023-45853 exp:2026-12-31
 
 # --- Previously suppressed (TODO: add a reason for each) ---
 CVE-2025-62727 exp:2026-12-31
