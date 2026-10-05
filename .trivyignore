@@ -57,3 +57,8 @@ CVE-2026-13221 exp:2026-12-31
 CVE-2026-57433 exp:2026-12-31
 CVE-2025-47273 exp:2026-12-31
 GHSA-6v7p-g79w-8964 exp:2026-12-31
+
+# urllib3 2.7.0 is pip's vendored copy (listed via pip's bundled SBOM).
+# App uses site-packages urllib3 2.8.0, which scans clean.
+CVE-2026-97687 exp:2026-12-31
+CVE-2026-97689 exp:2026-12-31
